@@ -42,7 +42,7 @@ function buildApp(): void {
   // Header
   const header = h('header', { class: 'site-header' });
   header.appendChild(h('h1', {}, 'Road Crashes (AU)'));
-  header.appendChild(h('span', { class: 'tagline' }, '35 years of Australian road fatality data'));
+  header.appendChild(h('span', { class: 'tagline' }, '37 years of Australian road fatality data'));
 
   const actions = h('div', { class: 'header-actions' });
   const infoBtn = h('button', { class: 'btn-icon', 'aria-label': 'About this site', title: 'About this site' }, '?');
@@ -78,7 +78,7 @@ function buildApp(): void {
   // Footer
   const footer = h('footer', { class: 'site-footer' });
   footer.innerHTML = `
-    <div class="footer-sources">Data: <a href="https://data.gov.au/data/dataset/australian-road-deaths-database" target="_blank" rel="noopener">Australian Road Deaths Database (ARDD)</a> · BITRE · CC BY 3.0 AU</div>
+    <div class="footer-sources">Data: <a href="https://datahub.roadsafety.gov.au/" target="_blank" rel="noopener">BITRE Australian Road Deaths Database (ARDD)</a> · CC BY 3.0 AU</div>
     <div>Built by <a href="https://benrichardson.dev/" target="_blank" rel="noopener">benrichardson.dev</a></div>
   `;
 
@@ -156,13 +156,13 @@ function openAboutModal(): void {
   panel.innerHTML += `
     <h2 class="modal-title">About Road Crashes (AU)</h2>
     <div class="modal-body">
-      <p>This site visualises 35 years of Australian road fatality data from the
+      <p>This site visualises 37 years of Australian road fatality data from the
       <strong>Australian Road Deaths Database (ARDD)</strong>, maintained by the
       Bureau of Infrastructure and Transport Research Economics (BITRE).</p>
 
       <h3>What data is included?</h3>
-      <p>Every road traffic fatality recorded in Australia from 1989 to 2023 —
-      over 55,000 individual records. Each record includes the state, crash type,
+      <p>Every road traffic fatality recorded in Australia from 1989 to February 2026 —
+      over 58,000 individual records. Each record includes the state, crash type,
       road user type, demographics (age, gender), speed limit, road type,
       remoteness area, and local government area.</p>
 
@@ -174,7 +174,7 @@ function openAboutModal(): void {
       <h3>Important caveats</h3>
       <ul>
         <li>Only <strong>fatalities</strong> (deaths within 30 days) are recorded — serious injuries are not included</li>
-        <li>Data from 2023 onward may be incomplete or preliminary</li>
+        <li>Data from 2025 onward may be incomplete or preliminary</li>
         <li>Some fields (speed limit, LGA, remoteness) are not available for all years</li>
         <li>Population data for per-capita rates uses 2023 ABS estimates</li>
       </ul>
@@ -183,7 +183,7 @@ function openAboutModal(): void {
       <ul class="glossary-list">${glossaryHTML}</ul>
 
       <h3>Data source</h3>
-      <p><a href="https://data.gov.au/data/dataset/australian-road-deaths-database" target="_blank" rel="noopener">Australian Road Deaths Database on data.gov.au</a><br>
+      <p><a href="https://datahub.roadsafety.gov.au/" target="_blank" rel="noopener">BITRE Road Safety Data Hub</a><br>
       Licensed under Creative Commons Attribution 3.0 Australia.</p>
     </div>
   `;

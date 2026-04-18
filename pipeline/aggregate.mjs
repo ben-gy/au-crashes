@@ -71,9 +71,14 @@ function normGender(g) {
   return 'Unknown';
 }
 
-function normAgeGroup(ag) {
-  if (!ag || ag === '-9') return 'Unknown';
-  return ag.replace(/_to_/g, '-').replace(/_or_older/, '+').replace(/_/g, '-');
+function ageToGroup(age) {
+  if (age < 0) return 'Unknown';
+  if (age <= 16) return '0-16';
+  if (age <= 25) return '17-25';
+  if (age <= 39) return '26-39';
+  if (age <= 64) return '40-64';
+  if (age <= 74) return '65-74';
+  return '75+';
 }
 
 function parseHour(time) {
@@ -113,10 +118,10 @@ const records = fatalities.map(r => {
     ru: r.Road_User || '',
     gen: normGender(r.Gender),
     age: parseInt(r.Age) || -1,
-    ag: normAgeGroup(r.Age_Group),
+    ag: ageToGroup(parseInt(r.Age) || -1),
     sl: parseInt(r.Speed_Limit) > 0 ? parseInt(r.Speed_Limit) : -1,
     rt: r.National_Road_Type || '',
-    rem: r.National_Remoteness_Areas || '',
+    rem: r.National_Remoteness_Areas_2021 || r.National_Remoteness_Areas || '',
     lga: r.National_LGA_Name_2021 || '',
     sa4: r.SA4_Name_2021 || '',
     bus: r.Bus_Involvement === 'Yes' ? 1 : 0,
@@ -275,8 +280,8 @@ for (const st of STATES) {
 // ── Write output ──
 const meta = {
   generated: new Date().toISOString(),
-  source: 'Australian Road Deaths Database (ARDD) via data.gov.au',
-  sourceUrl: 'https://data.gov.au/data/dataset/australian-road-deaths-database',
+  source: 'BITRE Australian Road Deaths Database (ARDD)',
+  sourceUrl: 'https://datahub.roadsafety.gov.au/',
   license: 'Creative Commons Attribution 3.0 Australia',
   recordCount: records.length,
   yearRange: [years[0], latestYear],
