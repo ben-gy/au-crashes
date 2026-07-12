@@ -20,8 +20,18 @@ async function resolveLatestUrl() {
   for (let back = 0; back < 12; back++) {
     const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - back, 1));
     const candidate = `https://datahub.roadsafety.gov.au/sites/default/files/documents/bitre_fatalities_${MONTHS[d.getUTCMonth()]}${d.getUTCFullYear()}.xlsx`;
-    const head = await fetch(candidate, { method: 'HEAD' });
-    if (head.ok) return candidate;
+    // Ranged GET, not HEAD — the datahub server hangs on HEAD from some
+    // networks. Errors/timeouts on one candidate just move to the next month.
+    try {
+      const probe = await fetch(candidate, {
+        headers: { Range: 'bytes=0-0' },
+        signal: AbortSignal.timeout(30_000),
+      });
+      probe.body?.cancel();
+      if (probe.ok || probe.status === 206) return candidate;
+    } catch {
+      // unreachable candidate — keep probing older months
+    }
   }
   throw new Error('No BITRE fatalities XLSX found in the last 12 months');
 }
