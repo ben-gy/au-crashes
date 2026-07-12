@@ -80,7 +80,7 @@ function buildApp(): void {
   const footer = h('footer', { class: 'site-footer' });
   footer.innerHTML = `
     <div class="footer-sources">Data: <a href="https://datahub.roadsafety.gov.au/" target="_blank" rel="noopener">BITRE Australian Road Deaths Database (ARDD)</a> · CC BY 3.0 AU</div>
-    <div>Built by <a href="https://benrichardson.dev/" target="_blank" rel="noopener">benrichardson.dev</a> · <a href="https://hub.benrichardson.dev" target="_blank" rel="noopener">more tools &amp; sites</a></div>
+    <div>Built by <a href="https://benrichardson.dev/" target="_blank" rel="noopener">benrichardson.dev</a> · <a href="https://sites.benrichardson.dev" target="_blank" rel="noopener">more tools &amp; sites</a></div>
   `;
 
   app.appendChild(header);
