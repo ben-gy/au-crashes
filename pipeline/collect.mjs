@@ -38,7 +38,18 @@ async function resolveLatestUrl() {
 
 mkdirSync(RAW_DIR, { recursive: true });
 
-const BITRE_URL = await resolveLatestUrl();
+let BITRE_URL;
+try {
+  BITRE_URL = await resolveLatestUrl();
+} catch (err) {
+  // datahub.roadsafety.gov.au blocks some CI networks (GitHub runners time
+  // out on every candidate; data.gov.au's ARDD mirror is frozen at Oct 2023).
+  // Soft-fail so scheduled runs don't alarm: existing data stays untouched,
+  // and the pipeline self-heals if BITRE becomes reachable. A local
+  // `npm run pipeline` + push still refreshes the data.
+  console.warn(`::warning::${err.message} — source unreachable from this network; keeping existing data.`);
+  process.exit(0);
+}
 console.log(`Downloading BITRE fatalities XLSX (${BITRE_URL.split('/').pop()})...`);
 const res = await fetch(BITRE_URL);
 if (!res.ok) throw new Error(`Failed to fetch XLSX: ${res.status}`);
