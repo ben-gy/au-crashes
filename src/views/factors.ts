@@ -9,8 +9,9 @@ function barChart(
   defaultColor = '#1e3a5f'
 ): string {
   const max = entries[0]?.[1] || 1;
+  const total = entries.reduce((sum, [, count]) => sum + count, 0);
   const rows = entries.map(([label, count]) => `
-    <div class="bar-chart-row">
+    <div class="bar-chart-row" data-tip="${label}: ${formatNumber(count)} fatalities (${((count / total) * 100).toFixed(1)}%)">
       <div class="bar-label">${label}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${(count / max) * 100}%;background:${colors[label] || defaultColor}"></div></div>
       <div class="bar-value">${formatNumber(count)}</div>

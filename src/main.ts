@@ -1,6 +1,7 @@
 import './styles.css';
 import type { ViewId } from './types';
 import { lookupTerm, getAllTerms } from './glossary';
+import { initTooltip } from './tooltip';
 import { h } from './utils';
 import { renderDashboard } from './views/dashboard';
 import { renderTable } from './views/table';
@@ -92,6 +93,9 @@ function buildApp(): void {
 
   // Glossary tooltips
   initTooltips();
+
+  // Hover tooltips for data marks ([data-tip])
+  initTooltip();
 }
 
 async function loadView(id: ViewId): Promise<void> {

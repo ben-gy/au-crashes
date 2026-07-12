@@ -2,23 +2,14 @@ import { loadGeo, loadSummary } from '../data';
 import { formatNumber, STATE_COLORS } from '../utils';
 import L from 'leaflet';
 
-// Simplified Australian state boundaries GeoJSON
-const STATE_GEOJSON: GeoJSON.FeatureCollection = {
-  type: 'FeatureCollection',
-  features: [
-    { type: 'Feature', properties: { name: 'NSW', abbr: 'NSW' }, geometry: { type: 'Polygon', coordinates: [[[141,-34],[141,-29],[149.5,-29],[153.5,-28.5],[154,-33.5],[150.5,-37.5],[150,-37.5],[149,-37.5],[141,-34]]] } },
-    { type: 'Feature', properties: { name: 'VIC', abbr: 'VIC' }, geometry: { type: 'Polygon', coordinates: [[[141,-34],[141,-39],[144,-39],[147,-39],[150,-39],[150,-37.5],[149,-37.5],[141,-34]]] } },
-    { type: 'Feature', properties: { name: 'QLD', abbr: 'QLD' }, geometry: { type: 'Polygon', coordinates: [[[138,-29],[138,-10.5],[142,-10.5],[146,-19],[149.5,-20.5],[153.5,-28.5],[149.5,-29],[141,-29],[138,-29]]] } },
-    { type: 'Feature', properties: { name: 'SA', abbr: 'SA' }, geometry: { type: 'Polygon', coordinates: [[[129,-26],[129,-31.5],[132,-31.5],[132,-34],[141,-34],[141,-29],[138,-29],[138,-26],[129,-26]]] } },
-    { type: 'Feature', properties: { name: 'WA', abbr: 'WA' }, geometry: { type: 'Polygon', coordinates: [[[129,-14],[115,-14],[113,-22],[114,-34.5],[129,-31.5],[129,-26],[129,-14]]] } },
-    { type: 'Feature', properties: { name: 'TAS', abbr: 'TAS' }, geometry: { type: 'Polygon', coordinates: [[[144.5,-40],[145,-41],[146,-41.5],[148.5,-42],[148.5,-40],[146,-39.5],[144.5,-40]]] } },
-    { type: 'Feature', properties: { name: 'NT', abbr: 'NT' }, geometry: { type: 'Polygon', coordinates: [[[129,-14],[129,-26],[138,-26],[138,-10.5],[136,-12],[132,-11],[129,-14]]] } },
-    { type: 'Feature', properties: { name: 'ACT', abbr: 'ACT' }, geometry: { type: 'Polygon', coordinates: [[[148.7,-35.1],[149,-35.1],[149.4,-35.2],[149.4,-35.5],[149.2,-35.9],[148.7,-35.5],[148.7,-35.1]]] } },
-  ],
-};
-
 export async function renderMap(el: HTMLElement): Promise<void> {
-  const [geo, summary] = await Promise.all([loadGeo(), loadSummary()]);
+  const [geo, summary, statesRes] = await Promise.all([
+    loadGeo(),
+    loadSummary(),
+    fetch('data/au-states.geojson'),
+  ]);
+  if (!statesRes.ok) throw new Error(`Failed to load state boundaries: ${statesRes.status}`);
+  const stateGeojson = (await statesRes.json()) as GeoJSON.FeatureCollection;
 
   el.innerHTML = `
     <div class="chart-container">
@@ -55,10 +46,11 @@ export async function renderMap(el: HTMLElement): Promise<void> {
     return `rgb(${r},${g},${b})`;
   }
 
-  L.geoJSON(STATE_GEOJSON, {
+  L.geoJSON(stateGeojson, {
+    attribution: 'Boundaries: ABS ASGS (CC BY 4.0)',
     style: (feature) => {
-      const abbr = feature?.properties?.abbr || '';
-      const pc = geo.perCapita[abbr] || 0;
+      const code = feature?.properties?.code || '';
+      const pc = geo.perCapita[code] || 0;
       return {
         fillColor: getColor(pc),
         weight: 2,
@@ -68,12 +60,17 @@ export async function renderMap(el: HTMLElement): Promise<void> {
       };
     },
     onEachFeature: (feature, layer) => {
-      const abbr = feature.properties?.abbr || '';
-      const count = geo.byState[abbr] || 0;
-      const pc = geo.perCapita[abbr] || 0;
-      const allTime = summary.byState[abbr] || 0;
+      const code = feature.properties?.code || '';
+      const name = feature.properties?.name || code;
+      const count = geo.byState[code] || 0;
+      const pc = geo.perCapita[code] || 0;
+      const allTime = summary.byState[code] || 0;
+      layer.bindTooltip(
+        `${name}: ${formatNumber(count)} fatalities in ${summary.latestYear} (${pc.toFixed(1)} per 100K)`,
+        { sticky: true }
+      );
       layer.bindPopup(`
-        <strong>${abbr}</strong><br>
+        <strong>${name} (${code})</strong><br>
         ${summary.latestYear} fatalities: <strong>${formatNumber(count)}</strong><br>
         Per 100K: <strong>${pc.toFixed(1)}</strong><br>
         All-time total: <strong>${formatNumber(allTime)}</strong>
@@ -101,7 +98,7 @@ export async function renderMap(el: HTMLElement): Promise<void> {
   const entries = Object.entries(summary.byState).sort((a, b) => b[1] - a[1]);
   const maxAll = entries[0]?.[1] || 1;
   barsEl.innerHTML = entries.map(([st, count]) => `
-    <div class="bar-chart-row">
+    <div class="bar-chart-row" data-tip="${st}: ${formatNumber(count)} fatalities all-time (${((count / summary.totalFatalities) * 100).toFixed(1)}% of national total)">
       <div class="bar-label">${st}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${(count / maxAll) * 100}%;background:${STATE_COLORS[st] || '#6b7280'}"></div></div>
       <div class="bar-value">${formatNumber(count)}</div>

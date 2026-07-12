@@ -39,10 +39,9 @@ export async function renderComparison(el: HTMLElement): Promise<void> {
       const val = matrices.stateVsCrashType[st]?.[crashTypes[c]] || 0;
       const color = heatColor(val, ctMax);
       const textColor = val / ctMax > 0.5 ? '#fff' : 'var(--text-primary)';
+      const ctTip = `${st} — ${crashTypes[c]}: ${formatNumber(val)}`;
       ctCells += `
-        <rect x="${x + 2}" y="${y + 2}" width="${ctCellW - 4}" height="${ctCellH - 4}" rx="4" fill="${color}">
-          <title>${st} — ${crashTypes[c]}: ${formatNumber(val)}</title>
-        </rect>
+        <rect x="${x + 2}" y="${y + 2}" width="${ctCellW - 4}" height="${ctCellH - 4}" rx="4" fill="${color}" data-tip="${ctTip}" aria-label="${ctTip}"></rect>
         <text x="${x + ctCellW / 2}" y="${y + ctCellH / 2 + 4}" text-anchor="middle" fill="${textColor}" font-size="12" font-family="var(--font-mono)" font-weight="600">${formatNumber(val)}</text>
       `;
     }
@@ -81,10 +80,9 @@ export async function renderComparison(el: HTMLElement): Promise<void> {
       const val = matrices.stateVsRoadUser[st]?.[roadUsers[c]] || 0;
       const color = heatColor(val, ruMax);
       const textColor = val / ruMax > 0.5 ? '#fff' : 'var(--text-primary)';
+      const ruTip = `${st} — ${roadUsers[c]}: ${formatNumber(val)}`;
       ruCells += `
-        <rect x="${x + 2}" y="${y + 2}" width="${ruCellW - 4}" height="${ruCellH - 4}" rx="4" fill="${color}">
-          <title>${st} — ${roadUsers[c]}: ${formatNumber(val)}</title>
-        </rect>
+        <rect x="${x + 2}" y="${y + 2}" width="${ruCellW - 4}" height="${ruCellH - 4}" rx="4" fill="${color}" data-tip="${ruTip}" aria-label="${ruTip}"></rect>
         <text x="${x + ruCellW / 2}" y="${y + ruCellH / 2 + 4}" text-anchor="middle" fill="${textColor}" font-size="11" font-family="var(--font-mono)" font-weight="600">${formatNumber(val)}</text>
       `;
     }

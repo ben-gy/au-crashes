@@ -23,9 +23,8 @@ export async function renderTrends(el: HTMLElement): Promise<void> {
       const val = d[st] || 0;
       const barH = (val / maxTotal) * plotH;
       const y = pad.top + plotH - cumY - barH;
-      bars += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" fill="${STATE_COLORS[st] || '#6b7280'}" opacity="0.85">
-        <title>${d.year} ${st}: ${formatNumber(val)}</title>
-      </rect>`;
+      const tip = `${d.year} ${st}: ${formatNumber(val)}`;
+      bars += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" fill="${STATE_COLORS[st] || '#6b7280'}" opacity="0.85" data-tip="${tip}" aria-label="${tip}"></rect>`;
       cumY += barH;
     }
   }
@@ -66,8 +65,9 @@ export async function renderTrends(el: HTMLElement): Promise<void> {
     const prev = data[data.length - 2];
     const change = prev > 0 ? ((latest - prev) / prev * 100).toFixed(1) : '0';
     const changeClass = parseFloat(change) <= 0 ? 'stat-good' : 'stat-bad';
+    const tip = `${st}: ${formatNumber(latest)} fatalities in latest year (${parseFloat(change) > 0 ? '+' : ''}${change}% vs prior year)`;
     return `
-      <div style="display:flex;align-items:center;gap:var(--space-md);padding:var(--space-sm) 0;border-bottom:1px solid var(--border-subtle)">
+      <div style="display:flex;align-items:center;gap:var(--space-md);padding:var(--space-sm) 0;border-bottom:1px solid var(--border-subtle)" data-tip="${tip}">
         <div style="width:40px;font-weight:600;color:${STATE_COLORS[st]}">${st}</div>
         <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
           <polyline points="${points}" fill="none" stroke="${STATE_COLORS[st]}" stroke-width="1.5"/>

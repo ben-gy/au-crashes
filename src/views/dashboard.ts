@@ -49,9 +49,8 @@ export async function renderDashboard(el: HTMLElement): Promise<void> {
     const barH = (d.total / maxTotal) * plotH;
     const y = padding.top + plotH - barH;
     const isLatest = d.year === summary.latestYear;
-    bars += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" fill="${isLatest ? '#d97706' : '#1e3a5f'}" opacity="${isLatest ? 1 : 0.7}" rx="1">
-      <title>${d.year}: ${formatNumber(d.total)} fatalities</title>
-    </rect>`;
+    const tip = `${d.year}: ${formatNumber(d.total)} fatalities`;
+    bars += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" fill="${isLatest ? '#d97706' : '#1e3a5f'}" opacity="${isLatest ? 1 : 0.7}" rx="1" data-tip="${tip}" aria-label="${tip}"></rect>`;
   }
 
   // Y axis
@@ -89,8 +88,9 @@ export async function renderDashboard(el: HTMLElement): Promise<void> {
   const stateRows = stateEntries.map(([st, count]) => {
     const pc = summary.perCapita[st];
     const pcText = pc ? ` (${pc.toFixed(1)} <span class="glossary-link" data-term="per-capita">per 100K</span>)` : '';
+    const tip = `${st}: ${formatNumber(count)} fatalities in ${summary.latestYear}${pc ? ` (${pc.toFixed(1)} per 100K)` : ''}`;
     return `
-      <div class="bar-chart-row">
+      <div class="bar-chart-row" data-tip="${tip}">
         <div class="bar-label">${st}</div>
         <div class="bar-track"><div class="bar-fill" style="width:${(count / maxState) * 100}%;background:${STATE_COLORS[st] || '#6b7280'}"></div></div>
         <div class="bar-value">${formatNumber(count)}${pcText}</div>
@@ -115,7 +115,7 @@ export async function renderDashboard(el: HTMLElement): Promise<void> {
     'Pedal cyclist': '#059669', Other: '#6b7280',
   };
   const ruRows = ruEntries.map(([ru, count]) => `
-    <div class="bar-chart-row">
+    <div class="bar-chart-row" data-tip="${ru}: ${formatNumber(count)} fatalities all-time">
       <div class="bar-label">${ru}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${(count / maxRU) * 100}%;background:${ROAD_USER_COLORS[ru] || '#6b7280'}"></div></div>
       <div class="bar-value">${formatNumber(count)}</div>

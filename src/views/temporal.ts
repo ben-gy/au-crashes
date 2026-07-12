@@ -46,10 +46,9 @@ export async function renderTemporal(el: HTMLElement): Promise<void> {
       const color = heatColor(val, max);
       const textColor = val / max > 0.5 ? '#fff' : 'var(--text-primary)';
 
+      const tip = `${day} ${c.toString().padStart(2, '0')}:00: ${formatNumber(val)} fatalities`;
       cells += `
-        <rect x="${x + 1}" y="${y + 1}" width="${cellW - 2}" height="${cellH - 2}" rx="3" fill="${color}">
-          <title>${day} ${c.toString().padStart(2, '0')}:00: ${formatNumber(val)} fatalities</title>
-        </rect>
+        <rect x="${x + 1}" y="${y + 1}" width="${cellW - 2}" height="${cellH - 2}" rx="3" fill="${color}" data-tip="${tip}" aria-label="${tip}"></rect>
         <text x="${x + cellW / 2}" y="${y + cellH / 2 + 4}" text-anchor="middle" fill="${textColor}" font-size="9" font-family="var(--font-mono)">${val}</text>
       `;
     }

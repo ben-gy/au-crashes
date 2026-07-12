@@ -647,6 +647,27 @@ body {
   cursor: pointer;
 }
 
+/* ── Hover tooltip ([data-tip]) ── */
+.hover-tip {
+  position: fixed;
+  z-index: 3000; /* above Leaflet panes and glossary tooltip */
+  max-width: 300px;
+  background: var(--text-primary);
+  color: #fff;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-sans);
+  line-height: 1.4;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 100ms;
+}
+
+.hover-tip.visible {
+  opacity: 1;
+}
+
 /* ── SVG Tooltip ── */
 .svg-tooltip {
   position: fixed;
