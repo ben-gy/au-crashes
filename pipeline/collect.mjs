@@ -10,12 +10,26 @@ import { read, utils } from 'xlsx';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const RAW_DIR = join(__dirname, 'raw');
 
-const BITRE_URL =
-  'https://datahub.roadsafety.gov.au/sites/default/files/documents/bitre_fatalities_feb2026.xlsx';
+// BITRE publishes a month-stamped file (e.g. bitre_fatalities_feb2026.xlsx).
+// Probe backwards from the current month so scheduled runs always pick up the
+// newest release instead of re-fetching a pinned snapshot forever.
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+async function resolveLatestUrl() {
+  const now = new Date();
+  for (let back = 0; back < 12; back++) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - back, 1));
+    const candidate = `https://datahub.roadsafety.gov.au/sites/default/files/documents/bitre_fatalities_${MONTHS[d.getUTCMonth()]}${d.getUTCFullYear()}.xlsx`;
+    const head = await fetch(candidate, { method: 'HEAD' });
+    if (head.ok) return candidate;
+  }
+  throw new Error('No BITRE fatalities XLSX found in the last 12 months');
+}
 
 mkdirSync(RAW_DIR, { recursive: true });
 
-console.log('Downloading BITRE fatalities XLSX...');
+const BITRE_URL = await resolveLatestUrl();
+console.log(`Downloading BITRE fatalities XLSX (${BITRE_URL.split('/').pop()})...`);
 const res = await fetch(BITRE_URL);
 if (!res.ok) throw new Error(`Failed to fetch XLSX: ${res.status}`);
 const buf = Buffer.from(await res.arrayBuffer());
